@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">QZen Timer</string>
+    <string name="start">Start</string>
+    <string name="pause">Pause</string>
+    <string name="reset">Zurücksetzen</string>
+    <string name="timer_title">QZen Timer</string>
+    <string name="mode_manual">Manuell</string>
+    <string name="mode_pomodoro">Pomodoro</string>
+    <string name="mode_tabata">Tabata</string>
+    <string name="work">Arbeit</string>
+    <string name="break_label">Pause</string>
+    <string name="long_break">Lange Pause</string>
+    <string name="cycle">Zyklus</string>
+    <string name="prepare">Vorbereiten</string>
+</resources>
