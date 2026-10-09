@@ -12,4 +12,6 @@
     <string name="long_break">Lange Pause</string>
     <string name="cycle">Zyklus</string>
     <string name="prepare">Vorbereiten</string>
+    <string name="notification_running">Timer läuft</string>
+    <string name="notification_channel">Laufender Timer</string>
 </resources>

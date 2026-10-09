@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.qzentimer"
-    compileSdk = 35
+    namespace = "ch.axji.qzentimer"
+    compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.qzentimer"
+        applicationId = "ch.axji.qzentimer"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -20,7 +20,7 @@ android {
     buildTypes {
         release {
             optimization {
-                enable = false
+                enable = true
             }
         }
     }
@@ -42,6 +42,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
