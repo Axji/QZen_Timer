@@ -13,6 +13,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import ch.axji.qzentimer.ui.theme.QZenTimerTheme
 
+/** Einziger Bildschirm der App. Der Timer-Zustand lebt im [TimerViewModel], nicht in der Activity. */
 class MainActivity : ComponentActivity() {
     private val viewModel: TimerViewModel by viewModels()
 

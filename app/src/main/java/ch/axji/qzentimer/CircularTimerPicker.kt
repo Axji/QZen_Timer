@@ -13,6 +13,18 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import kotlin.math.*
 
+/**
+ * Runder Zeitregler und Fortschrittsanzeige.
+ *
+ * Im manuellen Modus (`totalTimeSeconds == 0`) stellt man die Zeit durch Drehen mit dem Finger ein: Jede 6 Grad Drehung
+ * entsprechen einer Minute, ein voller Kreis also einer Stunde. Die Farbe wechselt mit jeder weiteren Stunde.
+ * In den anderen Modi zeigt der Bogen den Anteil der verbleibenden Zeit und der Regler ist gesperrt.
+ *
+ * @param currentTimeSeconds Verbleibende Sekunden
+ * @param totalTimeSeconds Dauer der aktuellen Phase, 0 im manuellen Modus
+ * @param isTimerRunning Während der Timer läuft, lässt sich die Zeit nicht ändern
+ * @param onTimeChange Wird mit der neuen Zeit in Sekunden aufgerufen
+ */
 @Composable
 fun CircularTimerPicker(
     currentTimeSeconds: Long,
@@ -21,6 +33,7 @@ fun CircularTimerPicker(
     onTimeChange: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Breite des Rings und Farbe der Spur, auf der der Fortschritt läuft
     val strokeWidth = 20.dp
     val trackColor = MaterialTheme.colorScheme.surfaceVariant
     
@@ -40,12 +53,14 @@ fun CircularTimerPicker(
         }
     }
 
+    // rememberUpdatedState: Die Geste läuft weiter, sieht aber immer die neuesten Werte
     val currentSecondsState = rememberUpdatedState(currentTimeSeconds)
     val onTimeChangeState = rememberUpdatedState(onTimeChange)
 
     var lastAngle by remember { mutableStateOf<Double?>(null) }
     var dragAccumulator by remember { mutableDoubleStateOf(0.0) }
     
+    // Farbe der 12 Striche rund um den Ring
     val tickColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
 
     Canvas(
@@ -66,17 +81,20 @@ fun CircularTimerPicker(
                             val touchPoint = change.position
                             val dist = sqrt((touchPoint.x - center.x).pow(2) + (touchPoint.y - center.y).pow(2))
                             
+                            // Berührungen nahe der Mitte ignorieren, dort schwankt der Winkel stark
                             if (dist > 100f) {
                                 var currentAngle = Math.toDegrees(atan2((touchPoint.y - center.y).toDouble(), (touchPoint.x - center.x).toDouble())) + 90
                                 if (currentAngle < 0) currentAngle += 360
                                 
                                 if (lastAngle != null) {
                                     var delta = currentAngle - lastAngle!!
+                                    // Sprung über die 0-Grad-Linie ausgleichen (z. B. 359 auf 1 Grad)
                                     if (delta > 180) delta -= 360
                                     if (delta < -180) delta += 360
                                     
                                     dragAccumulator += delta
                                     
+                                    // Pro 6 Grad Drehung eine Minute dazu oder weg (maximal 24 Stunden)
                                     if (abs(dragAccumulator) >= 6.0) {
                                         val minutesToChange = (dragAccumulator / 6.0).toInt()
                                         val newTotal = (currentSecondsState.value + minutesToChange * 60).coerceIn(0, 24 * 3600)
@@ -101,6 +119,7 @@ fun CircularTimerPicker(
             style = Stroke(width = strokeWidth.toPx())
         )
 
+        // Länge des Bogens: Anteil der Restzeit (Pomodoro/Tabata) oder Minuten der aktuellen Stunde (manuell)
         val sweepAngle = if (totalTimeSeconds > 0) {
             (currentTimeSeconds.toFloat() / totalTimeSeconds.toFloat()) * 360f
         } else {
@@ -116,6 +135,7 @@ fun CircularTimerPicker(
             style = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
         )
         
+        // 12 Striche wie auf einem Zifferblatt, alle 30 Grad
         for (i in 0 until 12) {
             val tickAngle = i * 30f - 90f
             val tickAngleRad = Math.toRadians(tickAngle.toDouble())

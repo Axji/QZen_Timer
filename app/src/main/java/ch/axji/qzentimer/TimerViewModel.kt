@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
  */
 class TimerViewModel(application: Application) : AndroidViewModel(application) {
 
+    // Der Zustand ist von aussen nur lesbar; geändert wird er über die Funktionen unten
     private val _state = MutableStateFlow(TimerState())
     val state: StateFlow<TimerState> = _state.asStateFlow()
 
@@ -37,6 +38,7 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
 
     fun changeTabataBreak(delta: Long) = change { TimerEngine.setTabataBreak(it, it.tabataBreakSeconds + delta) }
 
+    /** Wendet eine Änderung auf den Zustand an und passt danach Takt und Dienst an. */
     private fun change(transform: (TimerState) -> TimerState) {
         _state.update(transform)
         syncRunning()
@@ -63,6 +65,7 @@ class TimerViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /** Spielt den Ton zum Takt ab (kurzer Piep vor dem Ende, längerer Ton am Phasenende). */
     private fun play(sound: TimerSound) = when (sound) {
         TimerSound.COUNTDOWN_PIP -> toneGenerator.startTone(ToneGenerator.TONE_CDMA_PIP, 150)
         TimerSound.PHASE_END -> toneGenerator.startTone(ToneGenerator.TONE_PROP_BEEP2, 400)

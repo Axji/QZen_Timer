@@ -44,9 +44,11 @@ data class TickResult(val state: TimerState, val sound: TimerSound? = null)
 /** Reine Timer-Logik ohne Android-Abhängigkeiten, damit sie sich testen lässt. */
 object TimerEngine {
 
+    /** Wechselt den Modus und setzt den Timer zurück. Während der Timer läuft, ist der Wechsel gesperrt. */
     fun selectMode(state: TimerState, mode: TimerMode): TimerState =
         if (state.isRunning) state else reset(state.copy(mode = mode))
 
+    /** Stoppt den Timer und stellt den Anfang des aktuellen Modus ein (Pomodoro: erste Arbeitsphase, Tabata: Vorbereitung). */
     fun reset(state: TimerState): TimerState {
         val stopped = state.copy(isRunning = false)
         return when (state.mode) {
@@ -56,21 +58,25 @@ object TimerEngine {
         }
     }
 
+    /** Start/Pause. Ohne Zeit auf der Uhr passiert nichts. */
     fun toggleRunning(state: TimerState): TimerState =
         if (state.currentSeconds > 0) state.copy(isRunning = !state.isRunning) else state
 
+    /** Stellt im manuellen Modus die Zeit ein (0 bis 24 Stunden); wird ignoriert, solange der Timer läuft. */
     fun setManualTime(state: TimerState, seconds: Long): TimerState {
         if (state.isRunning || state.mode != TimerMode.MANUAL) return state
         val value = seconds.coerceIn(0, TimerState.MAX_MANUAL_SECONDS)
         return state.copy(currentSeconds = value, totalSeconds = value)
     }
 
+    /** Dauer der Tabata-Arbeitsphase (1 bis 3600 Sekunden). In der Arbeitsphase wirkt sie sofort auf die Uhr. */
     fun setTabataWork(state: TimerState, seconds: Long): TimerState {
         val value = seconds.coerceIn(1, TimerState.MAX_TABATA_SECONDS)
         val updated = state.copy(tabataWorkSeconds = value)
         return if (state.tabataPhase == TabataPhase.WORK) updated.copy(currentSeconds = value, totalSeconds = value) else updated
     }
 
+    /** Dauer der Tabata-Pause (1 bis 3600 Sekunden). In der Pause wirkt sie sofort auf die Uhr. */
     fun setTabataBreak(state: TimerState, seconds: Long): TimerState {
         val value = seconds.coerceIn(1, TimerState.MAX_TABATA_SECONDS)
         val updated = state.copy(tabataBreakSeconds = value)
@@ -94,6 +100,7 @@ object TimerEngine {
         return TickResult(next, sound)
     }
 
+    /** Wechselt nach Ablauf der Zeit in die nächste Phase; am Ende von Manuell und Tabata hält der Timer an. */
     private fun nextPhase(state: TimerState): TimerState = when (state.mode) {
         TimerMode.MANUAL -> state.copy(isRunning = false)
         TimerMode.POMODORO -> {
@@ -136,6 +143,7 @@ object TimerEngine {
     }
 }
 
+/** Formatiert Sekunden als MM:SS, ab einer Stunde als HH:MM:SS. */
 fun formatTime(seconds: Long): String {
     val h = seconds / 3600
     val m = (seconds % 3600) / 60

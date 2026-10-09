@@ -17,6 +17,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * Hauptbildschirm: Moduswahl, Phasenanzeige, Zeitregler, Tabata-Einstellungen sowie Start/Pause und Zurücksetzen.
+ * Die Oberfläche hält selbst keinen Zustand, alle Änderungen gehen über das [TimerViewModel].
+ */
 @Composable
 fun TimerScreen(viewModel: TimerViewModel, modifier: Modifier = Modifier) {
     val state by viewModel.state.collectAsState()
@@ -28,6 +32,7 @@ fun TimerScreen(viewModel: TimerViewModel, modifier: Modifier = Modifier) {
         onDispose { view.keepScreenOn = false }
     }
 
+    // Kurznamen für die Felder des aktuellen Zustands, damit die Oberfläche unten lesbar bleibt
     val timerMode = state.mode
     val isRunning = state.isRunning
     val currentTimeSeconds = state.currentSeconds
@@ -52,7 +57,7 @@ fun TimerScreen(viewModel: TimerViewModel, modifier: Modifier = Modifier) {
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        // Mode Selector
+        // Auswahl des Modus (Manuell, Pomodoro, Tabata); während der Timer läuft, ist sie gesperrt
         Row(
             modifier = Modifier
                 .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -83,7 +88,7 @@ fun TimerScreen(viewModel: TimerViewModel, modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Phase Information
+        // Anzeige der Phase, z. B. "Arbeit (Zyklus 2/4)"
         if (timerMode != TimerMode.MANUAL) {
             val phaseText = when (timerMode) {
                 TimerMode.POMODORO -> {
@@ -141,7 +146,7 @@ fun TimerScreen(viewModel: TimerViewModel, modifier: Modifier = Modifier) {
             }
         }
 
-        // Tabata Settings
+        // Dauer von Arbeit und Pause bei Tabata, nur änderbar, solange der Timer steht
         if (timerMode == TimerMode.TABATA && !isRunning) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -185,6 +190,7 @@ fun TimerScreen(viewModel: TimerViewModel, modifier: Modifier = Modifier) {
     }
 }
 
+/** Einstellung mit Minus- und Plus-Knopf für eine Dauer in Sekunden. */
 @Composable
 fun TabataSettingItem(label: String, value: Long, onValueChange: (Long) -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
