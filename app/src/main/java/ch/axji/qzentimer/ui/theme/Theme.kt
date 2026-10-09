@@ -1,4 +1,4 @@
-package com.example.qzentimer.ui.theme
+package ch.axji.qzentimer.ui.theme
 
 import android.app.Activity
 import android.os.Build
